@@ -1,0 +1,62 @@
+:root {
+    --color-bg: #f5f5f5; /* Fond gris clair */
+    --color-sidebar-hover: #d6d6d6; /* Gris doux pour le survol de la barre latérale */
+    --color-sidebar: #b3b3b3; /* Gris élégant pour la barre latérale */
+    --color-header-footer: #8c8c8c; /* Gris plus foncé pour l'en-tête et le pied de page */
+    --color-text: #2d2d2d; /* Gris sombre pour le texte */
+    --color-text-light: #ffffff; /* Blanc pur pour le texte clair */
+    --color-error: #cc0000; /* Rouge élégant pour les erreurs */
+    --color-success: #4caf50; /* Vert subtil pour le succès */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.layout {
+    display: flex;
+    flex-grow: 1;
+}
+
+
+.main-content {
+    flex-grow: 1;
+    padding: 10px;
+    background-color: var(--color-bg);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.content {
+    flex-grow: 1;
+    background-color: var(--color-bg);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+/* Style pour les messages d'erreur */
+.error {
+    color: var(--color-error);           /* Texte en rouge pour indiquer une erreur */
+    font-weight: bold;    /* Gras pour attirer l'attention */
+    border: 1px solid var(--color-text-light);  /* Bordure plus claire */
+    text-align: center;   /* Centrer le texte */
+}
+
+/* Optionnel: Style pour les messages de succès */
+.success {
+    color: var(--color-success);         /* Texte en vert pour indiquer une réussite */
+    font-weight: bold;
+    border: 1px solid var(--color-text-light);  /* Bordure verte */
+    text-align: center;
+}
