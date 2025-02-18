@@ -9,22 +9,6 @@
   <servlet>
     <servlet-name>FrontController</servlet-name>
     <servlet-class>mg.itu.prom16.servlet.FrontController</servlet-class>
-    
-    <init-param>
-      <param-name>controllerPackage</param-name>
-      <param-value>mg.etu2624.ticketing.controller</param-value>
-    </init-param>
-    
-    <init-param>
-      <param-name>viewFolder</param-name>
-      <param-value>/WEB-INF/views/jsp/</param-value>
-    </init-param>
-
-    <init-param>
-      <param-name>suffixe</param-name>
-      <param-value>.jsp</param-value> 
-    </init-param>
-    
     <load-on-startup>1</load-on-startup>
   </servlet>
 
