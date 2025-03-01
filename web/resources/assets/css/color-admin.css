@@ -1,0 +1,10 @@
+:root {
+    --color-bg: #f8f9fa;               /* Fond légèrement grisâtre pour réduire l'éblouissement */
+    --color-sidebar-hover: #495057;    /* Gris anthracite subtil */
+    --color-sidebar: #2b3a4a;          /* Bleu ardoise profond */
+    --color-header-footer: #2b3a4a;    /* Cohérence avec la sidebar */
+    --color-text: #343a40;             /* Gris foncé élégant */
+    --color-text-light: #e9ecef;       /* Blanc cassé doux */
+    --color-error: #dc3545;            /* Rouge vif mais contrôlé */
+    --color-success: #28a745;          /* Vert professionnel */
+}

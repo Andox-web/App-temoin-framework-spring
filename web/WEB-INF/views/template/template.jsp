@@ -1,10 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Template Page</title>
+    <%
+        if(session.getAttribute("user") != null){
+            %>
+            <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/assets/css/color-admin.css">
+            <%
+        }else{
+            %>
+            <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/assets/css/color-user.css">
+            <%
+        }
+        if(request.getAttribute("title") != null){
+            %>
+            <title><%=request.getAttribute("title")%></title>
+            <%
+        }
+    %>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/assets/css/content.css">
 </head>
 <body>
@@ -15,7 +29,7 @@
         <main class="main-content">
             <%@ include file="header.jsp" %>
             <div class="content">
-                <!-- Main content goes here -->
+                <jsp:include page="content.jsp" />
             </div>
             <%@ include file="footer.jsp" %>
         </main>

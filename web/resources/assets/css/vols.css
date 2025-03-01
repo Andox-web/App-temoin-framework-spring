@@ -1,0 +1,156 @@
+.vol-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background: var(--color-bg);
+}
+
+.vol-header {
+    background: var(--color-text-light);
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--color-sidebar-hover);
+}
+
+.vol-infos {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+    color: var(--color-sidebar);
+}
+
+.stats {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-item {
+    display: grid;
+    grid-template-columns: 120px 1fr 100px;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-text);
+}
+
+.progress {
+    height: 10px;
+    background: var(--color-text-light);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--color-success);
+    transition: width 0.3s ease;
+}
+
+.classe-section {
+    margin-bottom: 3rem;
+    padding: 1rem;
+    border: 1px solid var(--color-sidebar-hover);
+    border-radius: 8px;
+    background: var(--color-text-light);
+}
+
+.classe-section h2 {
+    color: var(--color-header-footer);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid currentColor;
+}
+
+.rangee {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(var(--cols), 40px);
+    margin-bottom: 0.5rem;
+}
+
+.siege {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-sidebar);
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: help;
+    transition: all 0.2s;
+    background: var(--color-bg);
+}
+
+.siege:hover {
+    transform: scale(1.1);
+    z-index: 1;
+}
+
+.siege.reserve {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--color-error),
+        var(--color-error) 2px,
+        var(--color-text-light) 2px,
+        var(--color-text-light) 4px
+    );
+}
+
+.siege.promotion {
+    position: relative;
+}
+
+.siege.promotion::after {
+    content: attr(data-reduction);
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--color-success);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 50%;
+    width: 23px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Suppression de la règle hover inutile sur position:static */
+
+.siege[data-tooltip] {
+    position: relative; /* Pour contexte de positionnement */
+}
+
+.siege[data-tooltip]:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-sidebar);
+    color: var(--color-text-light);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    white-space: pre;
+    font-size: 0.8em;
+    z-index: 1000; /* Au-dessus des autres éléments */
+    pointer-events: none; /* Évite les interférences */
+}
+
+/* Couleurs alternées pour les classes */
+.classe-section:nth-child(odd) .siege:not(.reserve):not(.promotion) {
+    background: var(--color-bg);
+    border-color: var(--color-success);
+}
+
+.classe-section:nth-child(even) .siege:not(.reserve):not(.promotion) {
+    background: var(--color-text-light);
+    border-color: var(--color-sidebar);
+}
+

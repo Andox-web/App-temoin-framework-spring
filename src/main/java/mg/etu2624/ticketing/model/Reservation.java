@@ -1,8 +1,16 @@
 package mg.etu2624.ticketing.model;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "reservations")
@@ -32,12 +40,26 @@ public class Reservation {
     @Column(name = "date_reservation", nullable = false)
     private LocalDateTime dateReservation;
 
-    @ManyToOne
-    @JoinColumn(name = "promotion_id")
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "promotion_id", nullable = true)
     private Promotion promotion;
 
-    @Column(name = "prix", nullable = false)
+    @Column(name = "prix")
     private BigDecimal prix;
+
+    @Column(name = "reduction")
+    private BigDecimal reduction;
+
+    @Column(name = "passport_passager", nullable = false)
+    private String passportPassager;
+
+    public String getPassportPassager() {
+        return passportPassager;
+    }
+
+    public void setPassportPassager(String passportPassager) {
+        this.passportPassager = passportPassager;
+    }
 
     public Long getId() {
         return id;
@@ -109,6 +131,14 @@ public class Reservation {
 
     public void setPrix(BigDecimal prix) {
         this.prix = prix;
+    }
+
+    public BigDecimal getReduction() {
+        return reduction;
+    }
+
+    public void setReduction(BigDecimal reduction) {
+        this.reduction = reduction;
     }
 
 }

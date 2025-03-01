@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sidebar.classList.toggle("collapsed");
     });
 
-    document.querySelectorAll('li > .list').forEach(item => {
+    document.querySelectorAll('.list').forEach(item => {
         item.addEventListener('click', function() {
             const submenu = this.nextElementSibling;
             // Vérifier si le sous-menu est déjà ouvert
