@@ -1,0 +1,186 @@
+.form-container {
+    width:500px;
+    margin:2rem auto;
+    padding:1.5rem;
+    background:var(--color-text-light);
+    border-radius:4px;
+    box-shadow:0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-container h2 {
+    margin-bottom: 20px;
+    color: var(--color-text);
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-container label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text);
+}
+
+.form-container input,
+.form-container select{
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid var(--color-text-light);
+    border-radius: 4px;
+}
+
+.form-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--color-sidebar);
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.form-container button:hover {
+    background-color: var(--color-sidebar-hover);
+}
+
+.form-container .sub-form-group {
+    margin-left: 1.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.error-message {
+    color: var(--color-error);
+    font-size: 0.8em;
+    margin-top: 0.3rem;
+    min-height: 1.2em;
+}
+
+.search-form {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--color-bg);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.search-form .form-group {
+    margin-bottom: 0;
+}
+
+.search-form label {
+    font-size: 0.9em;
+    margin-bottom: 0.3rem;
+}
+
+.search-form input,
+.search-form select {
+    padding: 0.5rem;
+    font-size: 0.9em;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.8rem;
+    border-top: 1px solid var(--color-sidebar);
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+}
+
+.btn-search {
+    background: var(--color-success);
+    color: var(--color-text-light);
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.btn-reset {
+    background: var(--color-error);
+    color: var(--color-text-light);
+    padding: 0.6rem 1.2rem;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+/* Ajouts pour les champs date */
+.date-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.date-group input[type="date"] {
+    width: 100%;
+    padding: 0.4rem;
+}
+
+/* Amélioration responsive */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .date-group {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Alignement des champs prix */
+.form-group input[type="number"] {
+    width: 100%;
+    padding: 0.5rem;
+}
+
+/* Responsive pour les petits écrans */
+@media (max-width: 768px) {
+    .form-group {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Groupes de dates */
+.date-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+/* Champs trajet */
+.trajet-inputs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.trajet-inputs span {
+    text-align: center;
+    color: var(--color-sidebar);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .date-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .trajet-inputs {
+        grid-template-columns: 1fr;
+    }
+    
+    .trajet-inputs span {
+        display: none;
+    }
+}

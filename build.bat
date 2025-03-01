@@ -34,7 +34,7 @@ for %%i in (%BUILD_DIR%\sources.txt) do if %%~zi==0 del %BUILD_DIR%\sources.txt
 REM Compile Java files if any are found
 if exist %BUILD_DIR%\sources.txt (
     echo Compiling Java files...
-    javac -d %WEB_INF_CLASSES% -cp "%LIB_DIR%\*" @%BUILD_DIR%\sources.txt > %BUILD_DIR%\compile.log 2>&1
+    javac -parameters -d %WEB_INF_CLASSES% -cp "%LIB_DIR%\*" @%BUILD_DIR%\sources.txt > %BUILD_DIR%\compile.log 2>&1
     if errorlevel 1 (
         echo Compilation failed. See compile.log for details.
         type %BUILD_DIR%\compile.log

@@ -13,38 +13,16 @@ import jakarta.persistence.spi.ClassTransformer;
 import jakarta.persistence.spi.PersistenceUnitInfo;
 import jakarta.persistence.spi.PersistenceUnitTransactionType;
 
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
-import org.hibernate.jpa.HibernatePersistenceProvider;
-
 public class TicketingPersistenceUnitInfo implements PersistenceUnitInfo {
 
     private final String persistenceUnitName;
     private final Properties properties;
-    private final DataSource dataSource;
+    private final URL persistenceUnitRootUrl;
 
-    public TicketingPersistenceUnitInfo(String persistenceUnitName, Properties properties) {
+    public TicketingPersistenceUnitInfo(String persistenceUnitName, Properties properties, URL persistenceUnitRootUrl) {
         this.persistenceUnitName = persistenceUnitName;
         this.properties = properties;
-        this.dataSource = createDataSource();
-    }
-
-    private DataSource createDataSource() {
-        BasicDataSource basicDataSource = new BasicDataSource();
-        
-        // Configurer la source de données avec les propriétés du fichier de configuration
-        basicDataSource.setDriverClassName(properties.getProperty("jakarta.persistence.jdbc.driver"));
-        basicDataSource.setUrl(properties.getProperty("jakarta.persistence.jdbc.url"));
-        basicDataSource.setUsername(properties.getProperty("jakarta.persistence.jdbc.user"));
-        basicDataSource.setPassword(properties.getProperty("jakarta.persistence.jdbc.password"));
-        
-        // Paramètres de pool
-        basicDataSource.setMaxTotal(10);    // Nombre max de connexions
-        basicDataSource.setMinIdle(2);      // Nombre minimum de connexions
-        basicDataSource.setMaxIdle(5);      // Nombre maximum de connexions inactives
-        basicDataSource.setTestOnBorrow(true);  // Teste la connexion avant de l'emprunter
-        basicDataSource.setValidationQuery("SELECT 1"); // Requête de validation
-        
-        return basicDataSource;
+        this.persistenceUnitRootUrl = persistenceUnitRootUrl;
     }
 
     @Override
@@ -54,7 +32,7 @@ public class TicketingPersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public String getPersistenceProviderClassName() {
-        return HibernatePersistenceProvider.class.getName();
+        return "org.hibernate.jpa.HibernatePersistenceProvider";
     }
 
     @Override
@@ -64,17 +42,27 @@ public class TicketingPersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public DataSource getJtaDataSource() {
-        return dataSource; // Pas de gestion JTA
+        return null;
     }
 
     @Override
     public DataSource getNonJtaDataSource() {
-        return dataSource; // Retourne la DataSource créée
+        return null;
     }
 
     @Override
     public List<String> getMappingFileNames() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<URL> getJarFileUrls() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public URL getPersistenceUnitRootUrl() {
+        return persistenceUnitRootUrl;
     }
 
     @Override
@@ -98,13 +86,8 @@ public class TicketingPersistenceUnitInfo implements PersistenceUnitInfo {
     }
 
     @Override
-    public Properties getProperties() {
-        return properties;
-    }
-
-    @Override
     public String getPersistenceXMLSchemaVersion() {
-        return "2.1";
+        return "2.2";
     }
 
     @Override
@@ -113,24 +96,17 @@ public class TicketingPersistenceUnitInfo implements PersistenceUnitInfo {
     }
 
     @Override
-    public void addTransformer(ClassTransformer transformer) {}
+    public void addTransformer(ClassTransformer transformer) {
+        // Non implémenté
+    }
 
     @Override
     public ClassLoader getNewTempClassLoader() {
-        return getClassLoader();
+        return null;
     }
 
     @Override
-    public List<URL> getJarFileUrls() {
-        return Collections.emptyList(); 
-    }
-
-    @Override
-    public URL getPersistenceUnitRootUrl() {
-        try {
-            return getClass().getProtectionDomain().getCodeSource().getLocation();
-        } catch (Exception e) {
-            throw new RuntimeException("Impossible de déterminer l'URL racine de l'unité de persistance", e);
-        }
+    public Properties getProperties() {
+        return properties;
     }
 }

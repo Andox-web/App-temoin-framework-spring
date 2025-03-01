@@ -1,0 +1,10 @@
+:root {
+    --color-bg: #f5f6fa; /* Fond clair et apaisant */
+    --color-sidebar-hover: #85c1e9; 
+    --color-sidebar: #3498db; /* Bleu confiance/informatif */
+    --color-header-footer: #3498db; 
+    --color-text: #2d3436; /* Noir doux pour le texte */
+    --color-text-light: #eeeeee; 
+    --color-error: #e74c3c; /* Rouge vif pour les alertes */
+    --color-success: #2ecc71; /* Vert frais pour les confirmations */
+}

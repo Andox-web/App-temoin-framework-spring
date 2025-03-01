@@ -1,11 +1,13 @@
 package mg.etu2624.ticketing.config;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.Properties;
 
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceException;
 import mg.itu.prom16.annotation.Bean;
 import mg.itu.prom16.annotation.Configuration;
 import mg.itu.prom16.annotation.Value;
@@ -34,46 +36,61 @@ public class JpaConfig {
     @Value("${hibernate.show_sql}")
     private String showSql;
 
-    @Value("${hibernate.c3p0.max_size}")	
-    private String poolSize = "20"; // Taille max du pool
-
-    @Value("${hibernate.c3p0.min_size}")
-    private String minPoolSize = "5"; // Taille min du pool
-    
-    @Value("${hibernate.c3p0.timeout}")
-    private String connectionTimeout = "300"; // Timeout en secondes
-    
-    @Value("${hibernate.c3p0.max_statements}")
-    private String maxStatements = "50"; // Nombre max de statements mis en cache
-    
-    @Value("${hibernate.c3p0.idle_test_period}")
-    private String idleTestPeriod = "300"; // Intervalle de test des connexions inactives
-    
     @Bean
     public EntityManagerFactory createEntityManagerFactory() {
-        if (jdbcDriver == null || jdbcUrl == null || jdbcUser == null || jdbcPassword == null ||
-            hibernateDialect == null || hbm2ddlAuto == null || showSql == null) {
-            throw new RuntimeException("One or more JPA properties are not set");
+        Properties jpaProperties = new Properties();
+        
+        // Configuration HikariCP révisée
+        jpaProperties.put("hibernate.connection.provider_class", "org.hibernate.hikaricp.internal.HikariCPConnectionProvider");
+        jpaProperties.put("hibernate.hikari.connectionTimeout", "30000"); // Augmenté à 30s
+        jpaProperties.put("hibernate.hikari.jdbcUrl", jdbcUrl);
+        jpaProperties.put("hibernate.hikari.username", jdbcUser);
+        jpaProperties.put("hibernate.hikari.password", jdbcPassword);
+        jpaProperties.put("hibernate.connection.driver_class", jdbcDriver);
+        
+        // Paramètres de pool critiques
+        jpaProperties.put("hibernate.hikari.maxLifetime", "1800000"); // 30 minutes
+        jpaProperties.put("hibernate.hikari.idleTimeout", "600000"); // 10 minutes
+        jpaProperties.put("hibernate.hikari.leakDetectionThreshold", "10000");
+        
+        // Configuration Hibernate
+        jpaProperties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect"); // Forcé en dur temporairement
+        jpaProperties.put("hibernate.hbm2ddl.auto", "none"); // Désactivé temporairement
+        jpaProperties.put("hibernate.show_sql", showSql);
+
+        // Chemin spécifique au package des entités
+        String entityPackage = "mg/etu2624/ticketing/model"; // Chemin relatif
+        URL rootUrl = Thread.currentThread()
+                        .getContextClassLoader()
+                        .getResource(entityPackage);
+        
+        if(rootUrl == null) {
+            throw new IllegalStateException("Package des entités introuvable: " + entityPackage);
         }
 
-        Map<String, Object> props = new HashMap<>();
-        props.put("jakarta.persistence.jdbc.driver", jdbcDriver);
-        props.put("jakarta.persistence.jdbc.url", jdbcUrl);
-        props.put("jakarta.persistence.jdbc.user", jdbcUser);
-        props.put("jakarta.persistence.jdbc.password", jdbcPassword);
-
-        props.put("hibernate.dialect", hibernateDialect);
-        props.put("hibernate.hbm2ddl.auto", hbm2ddlAuto);
-        props.put("hibernate.show_sql", showSql);
-
-        // Configuration du pool de connexion avec valeurs par défaut
-        props.put("hibernate.c3p0.min_size", minPoolSize);
-        props.put("hibernate.c3p0.max_size", poolSize);
-        props.put("hibernate.c3p0.timeout", connectionTimeout);
-        props.put("hibernate.c3p0.max_statements", maxStatements);
-        props.put("hibernate.c3p0.idle_test_period", idleTestPeriod);
-
-        HibernatePersistenceProvider provider = new HibernatePersistenceProvider();
-        return provider.createEntityManagerFactory("ticketing-persistence-unit", props);
+        // Création de l'EMF
+        TicketingPersistenceUnitInfo persistenceUnitInfo = new TicketingPersistenceUnitInfo(
+            "TicketingPU", 
+            jpaProperties,
+            rootUrl
+        );
+        
+        return new HibernatePersistenceProvider()
+            .createContainerEntityManagerFactory(persistenceUnitInfo, jpaProperties);
+    }
+    public static String getSqlMessage(PersistenceException e) {
+        Throwable rootCause = e;
+        while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+            rootCause = rootCause.getCause();
+        }
+        
+        String errorMessage = "Erreur inconnue";
+        if (rootCause instanceof SQLException) {
+            String fullMessage = rootCause.getMessage();
+            // Extraction du message métier
+            errorMessage = fullMessage.replaceAll("(?s).*ERREUR:\\s*(.*?)\\s*Où.*", "$1");
+        }
+        
+        return errorMessage;
     }
 }

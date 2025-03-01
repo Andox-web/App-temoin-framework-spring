@@ -1,0 +1,78 @@
+.table-container {
+    max-width: 1200px;
+    margin: 1rem auto;
+    border: 1px solid var(--color-sidebar);
+    font-size: 0.9em;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-text-light);
+}
+
+.table-container th {
+    background: var(--color-header-footer);
+    color: var(--color-text-light);
+    padding: 0.6rem;
+    font-weight: 500;
+}
+
+.table-container td {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--color-sidebar);
+    vertical-align: top;
+}
+
+.table-container tr:nth-child(even) {
+    background: var(--color-bg);
+}
+
+.table-container .occupation-line {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.2rem 0;
+}
+
+.table-container .classe {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table-container .stats {
+    color: var(--color-success);
+    white-space: nowrap;
+}
+
+.table-container .stats em {
+    font-style: normal;
+    color: var(--color-sidebar);
+}
+
+.table-container .prix {
+    color: var(--color-header-footer);
+    font-weight: 600;
+    text-align: right;
+    min-width: 80px;
+}
+
+.btn-editer,
+.btn-supprimer {
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    text-decoration: none;
+    font-size: 0.85em;
+}
+
+.btn-editer {
+    background: var(--color-sidebar);
+    color: var(--color-text-light);
+}
+
+.btn-supprimer {
+    background: var(--color-error);
+    color: var(--color-text-light);
+}

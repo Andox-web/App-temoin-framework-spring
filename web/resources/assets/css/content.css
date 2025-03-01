@@ -1,14 +1,3 @@
-:root {
-    --color-bg: #f5f5f5; /* Fond gris clair */
-    --color-sidebar-hover: #d6d6d6; /* Gris doux pour le survol de la barre latérale */
-    --color-sidebar: #b3b3b3; /* Gris élégant pour la barre latérale */
-    --color-header-footer: #8c8c8c; /* Gris plus foncé pour l'en-tête et le pied de page */
-    --color-text: #2d2d2d; /* Gris sombre pour le texte */
-    --color-text-light: #ffffff; /* Blanc pur pour le texte clair */
-    --color-error: #cc0000; /* Rouge élégant pour les erreurs */
-    --color-success: #4caf50; /* Vert subtil pour le succès */
-}
-
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -59,4 +48,126 @@ body {
     font-weight: bold;
     border: 1px solid var(--color-text-light);  /* Bordure verte */
     text-align: center;
+}
+/* Conteneur des messages */
+.alert-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: max-content;
+    max-width: 90%;
+}
+
+/* Style de base des messages */
+.alert {
+    padding: 12px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideDown 0.5s ease-out;
+    font-size: 1em;
+    min-width: 400px; /* Plus large */
+    height: 50px; /* Hauteur fixe */
+    justify-content: space-between;
+}
+
+/* Animation d'apparition */
+@keyframes slideDown {
+    from { 
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Style pour les messages */
+.alert-success {
+    background: var(--color-success);
+    color: var(--color-text-light);
+    border: 2px solid #28a745dd;
+}
+
+.alert-error {
+    background: var(--color-error);
+    color: var(--color-text-light);
+    border: 2px solid #dc3546dd;
+}
+
+/* Icône */
+.alert-icon {
+    font-size: 1.2em; /* Taille réduite */
+    flex-shrink: 0;
+    margin-top: -10px; /* Légèrement surélevée */
+}
+
+/* Bouton de fermeture */
+.alert-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 1.1em; /* Taille réduite */
+    padding: 0 0 0 20px;
+    opacity: 0.8;
+    margin-top: -10px; /* Légèrement surélevé */
+}
+
+.alert-close:hover {
+    opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .alert {
+        min-width: unset;
+        width: 90vw;
+        font-size: 0.9em;
+        padding: 10px 15px;
+        height: 45px;
+    }
+    
+    .alert-icon {
+        font-size: 1em;
+    }
+    
+    .alert-close {
+        font-size: 1em;
+    }
+}
+/* Menu contextuel */
+.seat-menu {
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    background: var(--color-text-light);
+    border: 1px solid var(--color-sidebar);
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.seat-menu button {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.seat-menu button:hover {
+    background: var(--color-bg);
+}
+.error-message {
+    color: var(--color-error);
+    margin-top: 10px;
 }
