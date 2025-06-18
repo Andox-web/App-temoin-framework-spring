@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.antlr.v4.runtime.misc.Pair;
 
@@ -14,11 +13,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import jakarta.servlet.http.HttpServletRequest;
 import mg.etu2624.ticketing.model.Avion;
 import mg.etu2624.ticketing.model.ClasseSiege;
 import mg.etu2624.ticketing.model.PrixVolClasse;
-import mg.etu2624.ticketing.model.Siege;
 import mg.etu2624.ticketing.model.Vol;
 import mg.etu2624.ticketing.model.dto.PrixVolClasseDTO;
 import mg.etu2624.ticketing.model.dto.VolDTO;

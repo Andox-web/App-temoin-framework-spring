@@ -1,7 +1,5 @@
 package mg.etu2624.ticketing.controller;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -10,22 +8,18 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import mg.etu2624.ticketing.config.JpaConfig;
-import mg.etu2624.ticketing.model.ClasseSiege;
 import mg.etu2624.ticketing.model.Promotion;
 import mg.etu2624.ticketing.model.Reservation;
 import mg.etu2624.ticketing.model.Siege;
 import mg.etu2624.ticketing.model.Vol;
-import mg.etu2624.ticketing.model.VolSiege;
 import mg.etu2624.ticketing.model.dto.ReservationDTO;
 import mg.etu2624.ticketing.model.view.PrixSiegeView;
 import mg.itu.prom16.annotation.Autowired;
 import mg.itu.prom16.annotation.RoleRequired;
 import mg.itu.prom16.controller.Controller;
-import mg.itu.prom16.mapping.DeleteMapping;
 import mg.itu.prom16.mapping.GetMapping;
 import mg.itu.prom16.mapping.PostMapping;
 import mg.itu.prom16.mapping.Url;
-import mg.itu.prom16.param.PathVariable;
 import mg.itu.prom16.param.RequestBody;
 import mg.itu.prom16.param.RequestParam;
 import mg.itu.prom16.response.Model;

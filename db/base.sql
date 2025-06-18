@@ -104,19 +104,28 @@ CREATE TABLE vol_sieges (
     est_reserve BOOLEAN DEFAULT FALSE
 );
 
+-- Table categorie 
+CREATE TABLE categorie(
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(255) NOT NULL,
+    description TEXT
+);
+
 -- Table prix_vols_classes
 CREATE TABLE prix_vols_classes (
     id SERIAL PRIMARY KEY,
     vol_id INT NOT NULL REFERENCES vols(id) ON DELETE CASCADE,
     classe_siege_id INT NOT NULL REFERENCES classes_siege(id) ON DELETE CASCADE,
+    categorie_id INT NOT NULL REFERENCES categorie(id) ON DELETE CASCADE,
     prix DECIMAL(10,2) NOT NULL CHECK (prix >= 0),
-    UNIQUE(vol_id, classe_siege_id)
+    UNIQUE(vol_id, classe_siege_id,categorie_id)
 );
 
 -- Table prix_classes_global
 CREATE TABLE prix_classes_global (
     id SERIAL PRIMARY KEY,
     classe_siege_id INT NOT NULL UNIQUE REFERENCES classes_siege(id) ON DELETE CASCADE,
+    categorie_id INT NOT NULL REFERENCES categorie(id) ON DELETE CASCADE,
     prix DECIMAL(10,2) NOT NULL CHECK (prix >= 0)
 );
 
@@ -126,6 +135,7 @@ CREATE TABLE reservations (
     vol_id INT NOT NULL REFERENCES vols(id) ON DELETE CASCADE,
     classe_siege_id INT NOT NULL REFERENCES classes_siege(id) ON DELETE CASCADE,
     siege_id INT NOT NULL REFERENCES sieges(id) ON DELETE CASCADE,
+    categorie_id INT NOT NULL REFERENCES categorie(id) ON DELETE CASCADE,
     nom_passager VARCHAR(100) NOT NULL,
     email_passager VARCHAR(255) NOT NULL,
     date_reservation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -144,6 +154,7 @@ SELECT
     COUNT(vs.id) AS nombre_total_sieges,
     SUM(CASE WHEN vs.est_reserve THEN 1 ELSE 0 END) AS nombre_occupe,
     (COUNT(vs.id) - SUM(CASE WHEN vs.est_reserve THEN 1 ELSE 0 END)) AS nombre_libre,
+    COALESCE(pvc.categorie_id, pcg.categorie_id) AS categorie_id,
     COALESCE(pvc.prix, pcg.prix) AS prix
 FROM vols v
 JOIN vol_sieges vs ON v.id = vs.vol_id
@@ -160,6 +171,7 @@ SELECT
     s.numero_siege,
     COALESCE(pvc.prix, pcg.prix) AS prix_base,
     prom.id as promotion_id,
+    COALESCE(pvc.categorie_id, pcg.categorie_id) AS categorie_id,
     COALESCE(pvc.prix, pcg.prix) * (1 - COALESCE(prom.pourcentage_reduction, 0) / 100) AS prix_final
 FROM vol_sieges vs
 JOIN sieges s 
@@ -413,9 +425,9 @@ BEGIN
     -- Calcul du prix de base
     SELECT COALESCE(
         (SELECT prix FROM prix_vols_classes 
-         WHERE vol_id = NEW.vol_id AND classe_siege_id = NEW.classe_siege_id),
+         WHERE vol_id = NEW.vol_id AND classe_siege_id = NEW.classe_siege_id AND categorie_id = NEW.categorie_id),
         (SELECT prix FROM prix_classes_global 
-         WHERE classe_siege_id = NEW.classe_siege_id)
+         WHERE classe_siege_id = NEW.classe_siege_id AND categorie_id = NEW.categorie_id)
     ) INTO prix_base;
 
     -- Appliquer la promotion si disponible
@@ -518,33 +530,3 @@ CREATE TRIGGER trigger_verifier_annulation
 BEFORE DELETE ON reservations
 FOR EACH ROW
 EXECUTE PROCEDURE verifier_annulation();
-
--- Insertions initiales
-INSERT INTO avions (numero_avion, modele) VALUES
-('AV001', 'Boeing 737'),
-('AV002', 'Airbus A320'),
-('AV003', 'Boeing 787');
-
-INSERT INTO classes_siege (nom, description) VALUES
-('Economique', 'Sieges standards avec bon rapport confort/prix'),
-('Affaires', 'Sieges plus larges avec espace supplementaire'),
-('Premiere', 'Service haut de gamme et sieges premium');
-
-INSERT INTO sieges_avion (avion_id, classe_siege_id, nombre_sieges) VALUES
-(1, 1, 150), (1, 2, 30), (1, 3, 10),
-(2, 1, 120), (2, 2, 20), (2, 3, 8),
-(3, 1, 200), (3, 2, 40), (3, 3, 15);
-
-INSERT INTO prix_classes_global (classe_siege_id, prix) VALUES
-(1, 100.00), (2, 300.00), (3, 600.00);
-
-INSERT INTO restrictions_reservation_global (delai_creation_heures, delai_annulation_heures) 
-VALUES (24, 2);
-
-INSERT INTO roles (nom) VALUES ('admin');
-
-INSERT INTO utilisateurs (nom, email, mot_de_passe) VALUES
-('Admin', 'admin@example.com', 'pwd123');
-
-INSERT INTO utilisateurs_roles (utilisateur_id, role_id) VALUES
-(1, 1);

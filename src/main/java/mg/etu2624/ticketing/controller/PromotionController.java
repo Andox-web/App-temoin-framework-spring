@@ -4,7 +4,6 @@ import java.util.List;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.servlet.http.HttpServletRequest;
 import mg.etu2624.ticketing.config.JpaConfig;
 import mg.etu2624.ticketing.model.ClasseSiege;
 import mg.etu2624.ticketing.model.Promotion;
