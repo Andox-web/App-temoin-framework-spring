@@ -36,7 +36,7 @@ CREATE TABLE sieges (
 -- Table vols modifiee
 CREATE TABLE vols (
     id SERIAL PRIMARY KEY,
-    numero_vol VARCHAR(10) UNIQUE NOT NULL,
+    numero_vol VARCHAR(255) UNIQUE NOT NULL,
     avion_id INT NOT NULL REFERENCES avions(id) ON DELETE CASCADE,
     depart TIMESTAMP NOT NULL,
     arrivee TIMESTAMP,
@@ -154,47 +154,59 @@ SELECT
     COUNT(vs.id) AS nombre_total_sieges,
     SUM(CASE WHEN vs.est_reserve THEN 1 ELSE 0 END) AS nombre_occupe,
     (COUNT(vs.id) - SUM(CASE WHEN vs.est_reserve THEN 1 ELSE 0 END)) AS nombre_libre,
-    COALESCE(pvc.categorie_id, pcg.categorie_id) AS categorie_id,
-    COALESCE(pvc.prix, pcg.prix) AS prix
+    COALESCE(MAX(pvc.categorie_id), MAX(pcg.categorie_id)) AS categorie_id
 FROM vols v
 JOIN vol_sieges vs ON v.id = vs.vol_id
 JOIN sieges s ON vs.siege_id = s.id
 JOIN classes_siege cs ON s.classe_siege_id = cs.id
 LEFT JOIN prix_vols_classes pvc ON v.id = pvc.vol_id AND cs.id = pvc.classe_siege_id
 LEFT JOIN prix_classes_global pcg ON cs.id = pcg.classe_siege_id
-GROUP BY v.id, v.numero_vol, cs.nom, pvc.prix, pcg.prix;
+GROUP BY v.id, v.numero_vol, cs.nom;
 
-CREATE VIEW vue_prix_siege AS
+CREATE OR REPLACE VIEW occupation_sieges_prix AS
+SELECT 
+    v.id AS vol_id,
+    v.numero_vol,
+    cs.nom AS classe_siege,
+    cat.id AS categorie_id,
+    cat.nom AS categorie,
+    COALESCE(pvc.prix, pcg.prix) AS prix
+FROM vols v
+JOIN vol_sieges vs ON v.id = vs.vol_id
+JOIN sieges s ON vs.siege_id = s.id
+JOIN classes_siege cs ON s.classe_siege_id = cs.id
+CROSS JOIN categorie cat
+LEFT JOIN prix_vols_classes pvc 
+    ON v.id = pvc.vol_id AND cs.id = pvc.classe_siege_id AND pvc.categorie_id = cat.id
+LEFT JOIN prix_classes_global pcg 
+    ON cs.id = pcg.classe_siege_id AND pcg.categorie_id = cat.id
+GROUP BY v.id, v.numero_vol, cs.nom, cat.id, cat.nom, pvc.prix, pcg.prix;
+
+
+CREATE OR REPLACE VIEW vue_prix_siege AS
 SELECT 
     vs.vol_id,
     s.id AS siege_id,
     s.numero_siege,
-    COALESCE(pvc.prix, pcg.prix) AS prix_base,
-    prom.id as promotion_id,
-    COALESCE(pvc.categorie_id, pcg.categorie_id) AS categorie_id,
-    COALESCE(pvc.prix, pcg.prix) * (1 - COALESCE(prom.pourcentage_reduction, 0) / 100) AS prix_final
+    osp.prix AS prix_base,
+    prom.id AS promotion_id,
+    osp.categorie_id,
+    osp.categorie AS categorie_nom,
+    osp.prix * (1 - COALESCE(prom.pourcentage_reduction, 0) / 100) AS prix_final
 FROM vol_sieges vs
 JOIN sieges s 
     ON vs.siege_id = s.id
-LEFT JOIN prix_vols_classes pvc 
-    ON vs.vol_id = pvc.vol_id 
-    AND s.classe_siege_id = pvc.classe_siege_id
-LEFT JOIN (
-    SELECT p1.classe_siege_id, p1.prix
-    FROM prix_classes_global p1
-    INNER JOIN (
-         SELECT classe_siege_id, MAX(id) AS max_id
-         FROM prix_classes_global
-         GROUP BY classe_siege_id
-    ) p2 
-      ON p1.classe_siege_id = p2.classe_siege_id 
-     AND p1.id = p2.max_id
-) pcg 
-    ON s.classe_siege_id = pcg.classe_siege_id
+JOIN classes_siege cs 
+    ON s.classe_siege_id = cs.id
+JOIN occupation_sieges_prix osp
+    ON vs.vol_id = osp.vol_id
+   AND cs.nom = osp.classe_siege
+   AND osp.categorie_id IS NOT NULL
 LEFT JOIN promotions prom 
     ON vs.vol_id = prom.vol_id 
    AND s.classe_siege_id = prom.classe_siege_id
    AND prom.promotion_utilisee < prom.limite_sieges;
+
 
 -- Fonctions et Triggers
 

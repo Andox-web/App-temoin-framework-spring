@@ -36,10 +36,8 @@ public class OccupationSiege {
     @Column(name = "nombre_libre")
     private Integer nombreLibre;
 
-    @Column(name = "prix")
-    private BigDecimal prix;
-
-    public BigDecimal getPrix() { return prix; }
+    @Column(name = "categorie_id")
+    private String categorie;
 
     public Long getVolId() {
         return volId;
@@ -76,6 +74,13 @@ public class OccupationSiege {
     }
     public void setNombreLibre(Integer nombreLibre) {
         this.nombreLibre = nombreLibre;
+    }
+    public String getCategorie() {
+        return categorie;
+    }
+
+    public void setCategorie(String categorie) {
+        this.categorie = categorie;
     }
 
 }

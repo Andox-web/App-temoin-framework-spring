@@ -26,6 +26,10 @@ public class PrixVolClasse {
     @JoinColumn(name = "classe_siege_id", nullable = false)
     private ClasseSiege classeSiege;
 
+    @ManyToOne
+    @JoinColumn(name = "categorie_id", nullable = false)
+    private Categorie categorie;
+
     @Column(name = "prix", nullable = false)
     private BigDecimal prix;
 
@@ -51,6 +55,14 @@ public class PrixVolClasse {
 
     public void setClasseSiege(ClasseSiege classeSiege) {
         this.classeSiege = classeSiege;
+    }
+
+    public Categorie getCategorie() {
+        return categorie;
+    }
+
+    public void setCategorie(Categorie categorie) {
+        this.categorie = categorie;
     }
 
     public BigDecimal getPrix() {

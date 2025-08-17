@@ -9,7 +9,7 @@ set WEB_DIR=web
 set BUILD_DIR=build
 set WEB_INF_CLASSES=%BUILD_DIR%\WEB-INF\classes
 set WEB_INF_LIB=%BUILD_DIR%\WEB-INF\lib
-set TOMCAT_HOME=E:\logiciel\tomcat
+set TOMCAT_HOME=F:\tomcat
 set WAR_NAME=%PROJECT_NAME%.war
 
 REM Clean previous build

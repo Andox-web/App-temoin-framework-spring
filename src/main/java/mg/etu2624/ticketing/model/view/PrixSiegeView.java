@@ -33,6 +33,12 @@ public class PrixSiegeView {
     @Column(name = "prix_final")
     private BigDecimal prixFinal;
 
+    @Column(name = "categorie_id")
+    private Long categorieId;
+
+    @Column(name = "categorie_nom")
+    private String categorieNom;
+
     public PrixSiegeView() {}
 
     public PrixSiegeViewId getId() {
@@ -73,6 +79,22 @@ public class PrixSiegeView {
 
     public void setPromotion(Promotion promotion) {
         this.promotion = promotion;
+    }
+
+    public Long getCategorieId() {
+        return categorieId;
+    }
+
+    public void setCategorieId(Long categorieId) {
+        this.categorieId = categorieId;
+    }
+
+    public String getCategorieNom() {
+        return categorieNom;
+    }
+
+    public void setCategorieNom(String categorieNom) {
+        this.categorieNom = categorieNom;
     }
     
 }

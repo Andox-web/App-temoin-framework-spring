@@ -170,6 +170,18 @@ public class Vol {
             .setParameter("avionId", getAvion().getId())
             .getResultList();
 
+        for (Object[] siegeData : siegesData) {
+            Siege siege = (Siege) siegeData[0];
+            Boolean estReserve = (Boolean) siegeData[1]; // attention, peut être null
+            Promotion promotion = (Promotion) siegeData[2];
+            Reservation reservation = (Reservation) siegeData[3];
+
+            if (Boolean.TRUE.equals(estReserve) && reservation != null) {
+                siegeData[2] = reservation.getPromotion();
+            }
+        }
+ 
+
         // Groupement par classe et calcul des colonnes
         Map<String, List<Object[]>> siegesParClasse = siegesData.stream()
             .sorted((s1, s2) -> {

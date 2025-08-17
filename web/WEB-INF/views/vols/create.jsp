@@ -1,9 +1,11 @@
 <%@ page import="mg.etu2624.ticketing.model.Avion" %>
 <%@ page import="mg.etu2624.ticketing.model.ClasseSiege" %>
+<%@ page import="mg.etu2624.ticketing.model.Categorie" %>
 <%@ page import="java.util.List" %>
 <%
     List<Avion> avions = (List<Avion>) request.getAttribute("avions");
     List<ClasseSiege> classesSiege = (List<ClasseSiege>) request.getAttribute("classesSiege");
+    List<Categorie> categories = (List<Categorie>) request.getAttribute("categories");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,17 +63,27 @@
             <div class="error-message" data-field="destination"></div>
         </div>
 
-        <!-- Prix par Classe -->
+        <!-- Prix par Classe et Catégorie -->
         <div class="form-group">
-            <label>Prix par Classe:</label>
+            <label>Prix par Classe et Catégorie:</label>
             <% for (ClasseSiege classeSiege : classesSiege) { %>
                 <div class="form-group sub-form-group">
-                    <label for="prix_<%= classeSiege.getId() %>"><%= classeSiege.getNom() %>:</label>
-                    <input type="number" id="prix_<%= classeSiege.getId() %>" 
-                           name="prixVolClasses[<%= classeSiege.getId() %>]" 
-                           step="0.01"
-                           data-classe="<%= classeSiege.getId() %>">
-                    <div class="error-message" data-field="prixVolClasses[<%= classeSiege.getId() %>]"></div>
+                    <strong><%= classeSiege.getNom() %>:</strong>
+                    <% for (Categorie categorie : categories) { %>
+                        <div class="form-group sub-form-group">
+                            <label for="prix_<%= classeSiege.getId() %>_<%= categorie.getId() %>">
+                                <%= categorie.getNom() %>:
+                            </label>
+                            <input type="number"
+                                   id="prix_<%= classeSiege.getId() %>_<%= categorie.getId() %>"
+                                   name="prixVolClasses[<%= classeSiege.getId() %>][<%= categorie.getId() %>]"
+                                   step="0.01"
+                                   data-classe="<%= classeSiege.getId() %>"
+                                   data-categorie="<%= categorie.getId() %>">
+                            <div class="error-message"
+                                 data-field="prixVolClasses[<%= classeSiege.getId() %>][<%= categorie.getId() %>]"></div>
+                        </div>
+                    <% } %>
                 </div>
             <% } %>
         </div>
@@ -82,7 +94,7 @@
     <script>
         document.getElementById('create-vol-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             // Reset des erreurs
             document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
 
@@ -98,6 +110,7 @@
                     .filter(input => input.value.trim() !== '')
                     .map(input => ({
                         classeSiegeId: parseInt(input.dataset.classe),
+                        categorieId: parseInt(input.dataset.categorie),
                         prix: parseFloat(input.value)
                     }))
             };
@@ -112,7 +125,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (!response.ok) {
                     if (response.status === 400) {
                         data.fields.forEach(field => {
@@ -128,7 +141,7 @@
                 }
                 alert('Vol cree avec succes');
                 window.location.href = '<%=request.getContextPath()%>/vols';
-                
+
             } catch (error) {
                 console.error('Erreur:', error);
                 alert(error.message);

@@ -2,6 +2,7 @@
 <%@ page import="java.util.*" %>
 <%@ page import="java.util.stream.*" %>
 <%@ page import="mg.etu2624.ticketing.model.view.OccupationSiege" %>
+<%@ page import="mg.etu2624.ticketing.model.view.OccupationSiegePrix" %>
 <%
     Vol vol = (Vol) request.getAttribute("vol");
     List<OccupationSiege> occupations = (List<OccupationSiege>) request.getAttribute("occupations");
@@ -9,6 +10,7 @@
     int maxColonne = (int) request.getAttribute("maxColonne");
     boolean isLogged = session.getAttribute("user")!=null;
     boolean isOngoing = (Boolean)request.getAttribute("isOngoing"); 
+    Map<Long, List<OccupationSiegePrix>> occupationPrixMap = (Map<Long, List<OccupationSiegePrix>>) request.getAttribute("occupationPrixMap");
 %>
 <!DOCTYPE html>
 <html>
@@ -56,13 +58,27 @@
 
         <!-- Statistiques -->
         <div class="stats">
-            <% for (OccupationSiege occ : occupations) { %>
+            <% 
+            Map<String, List<OccupationSiegePrix>> prixByClasse = new java.util.HashMap<>();
+            if (occupationPrixMap != null && occupationPrixMap.containsKey(vol.getId())) {
+                for (OccupationSiegePrix occPrix : occupationPrixMap.get(vol.getId())) {
+                    prixByClasse.computeIfAbsent(occPrix.getClasseSiege(), k -> new java.util.ArrayList<>()).add(occPrix);
+                }
+            }
+            for (OccupationSiege occ : occupations) { 
+                List<OccupationSiegePrix> prixList = prixByClasse.get(occ.getClasseSiege());
+            %>
             <div class="stat-item">
                 <div class="classe"><%= occ.getClasseSiege() %></div>
                 <div class="progress">
                     <div class="progress-bar" style="width:<%= (occ.getNombreOccupe()*100)/occ.getNombreTotalSieges() %>%"></div>
                 </div>
-                <div class="prix"><%= String.format("%,.2f", occ.getPrix()) %> Ar</div>
+                <% if (prixList != null) { for (OccupationSiegePrix occPrix : prixList) { %>
+                    <div class="prix" style="font-size:0.95em;">
+                        <span style="font-style:italic;"><%= occPrix.getCategorie() %>:</span>
+                        <span><%= occPrix.getPrix() != null ? String.format("%,.2f", occPrix.getPrix()) : "-" %> Ar</span>
+                    </div>
+                <% }} %>
             </div>
             <% } %>
         </div>
@@ -107,6 +123,7 @@
     </div>
     <div id="seatMenu" class="seat-menu">
         <a href="<%=request.getContextPath()%>/reservations?volId=<%= vol.getId() %>&siegeId="><button>Reserver</button></a>
+        <a href="<%=request.getContextPath()%>/reservations/view?id="><button>Voir</button></a>
         <a href="<%=request.getContextPath()%>/reservations/annuler?id="><button>Annuler</button></a>
     </div>
     <script>
@@ -132,15 +149,18 @@
 
          // Mise à jour des href des liens
         const createLink = menu.querySelector('a[href*="reservations?volId="]');
+        const viewLink = menu.querySelector('a[href*="reservations/view"]');
         const cancelLink = menu.querySelector('a[href*="reservations/annuler"]');
         
         // Remplacer l'ancien seatId dans l'URL par le nouveau
         createLink.href = createLink.href.replace(/siegeId=[^&]*/, 'siegeId=' + seatId);
+        viewLink.href = viewLink.href.replace(/id=[^&]*/, 'id=' + reservationId);
         cancelLink.href = cancelLink.href.replace(/id=[^&]*/, 'id=' + reservationId);
 
         const buttons = menu.querySelectorAll('button');
         buttons[0].style.display = isReserved ? 'none' : 'block';
-        buttons[1].style.display = isReserved && isLogged ? 'block' : 'none';
+        buttons[1].style.display = isReserved ? 'block' : 'none';  
+        buttons[2].style.display = isReserved && isLogged ? 'block' : 'none';
         console.log(isReserved);
     }
     </script>

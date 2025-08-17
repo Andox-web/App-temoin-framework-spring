@@ -15,11 +15,13 @@ import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import mg.etu2624.ticketing.model.Avion;
 import mg.etu2624.ticketing.model.ClasseSiege;
+import mg.etu2624.ticketing.model.Categorie;
 import mg.etu2624.ticketing.model.PrixVolClasse;
 import mg.etu2624.ticketing.model.Vol;
 import mg.etu2624.ticketing.model.dto.PrixVolClasseDTO;
 import mg.etu2624.ticketing.model.dto.VolDTO;
 import mg.etu2624.ticketing.model.view.OccupationSiege;
+import mg.etu2624.ticketing.model.view.OccupationSiegePrix;
 import mg.itu.prom16.annotation.Autowired;
 import mg.itu.prom16.annotation.RoleRequired;
 import mg.itu.prom16.controller.Controller;
@@ -106,6 +108,8 @@ public class VolController {
                 .addObject("classesSiege", em.createQuery("FROM ClasseSiege", ClasseSiege.class).getResultList())
                 .addObject("occupationMap", em.createQuery("FROM OccupationSiege", OccupationSiege.class)
                     .getResultList().stream().collect(Collectors.groupingBy(OccupationSiege::getVolId)))
+                .addObject("occupationPrixMap", em.createQuery("FROM OccupationSiegePrix", OccupationSiegePrix.class)
+                    .getResultList().stream().collect(Collectors.groupingBy(OccupationSiegePrix::getVolId)))
                 .addObject("numeroVol", criteria.getNumeroVol())
                 .addObject("avionId", criteria.getAvionId())
                 .addObject("departMin", criteria.getDepartMin())
@@ -199,8 +203,10 @@ public class VolController {
         try {
             Query queryAvions = em.createQuery("SELECT a FROM Avion a");
             Query queryClassesSiege = em.createQuery("SELECT cs FROM ClasseSiege cs");
+            Query queryCategories = em.createQuery("SELECT c FROM Categorie c");
             model.addObject("avions", queryAvions.getResultList());
             model.addObject("classesSiege", queryClassesSiege.getResultList());
+            model.addObject("categories", queryCategories.getResultList());
         } finally {
             em.close();
         }
@@ -213,7 +219,6 @@ public class VolController {
     @Url("/create")
     @RoleRequired("admin")
     public ResponseEntity<String> createVol(@RequestBody("vol") VolDTO volDto) {
-        
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
@@ -229,6 +234,7 @@ public class VolController {
                 PrixVolClasse prixVolClasse = new PrixVolClasse();
                 prixVolClasse.setVol(vol);
                 prixVolClasse.setClasseSiege(em.getReference(ClasseSiege.class, prixVolClasseDto.getClasseSiegeId()));
+                prixVolClasse.setCategorie(em.getReference(Categorie.class, prixVolClasseDto.getCategorieId()));
                 prixVolClasse.setPrix(prixVolClasseDto.getPrix());
                 em.persist(prixVolClasse);
             }
@@ -256,6 +262,14 @@ public class VolController {
                 .setParameter("volId", id)
                 .getResultList();
 
+            List<OccupationSiegePrix> occupationPrixList = em.createQuery(
+                "SELECT o FROM OccupationSiegePrix o WHERE o.volId = :volId", OccupationSiegePrix.class)
+                .setParameter("volId", id)
+                .getResultList();
+
+            Map<Long, List<OccupationSiegePrix>> occupationPrixMap = new HashMap<>();
+            occupationPrixMap.put(id, occupationPrixList);
+
             boolean isOngoing = vol.getDepart().isAfter(LocalDateTime.now()); 
 
             Pair volInfo = vol.getVolSiegeInfo(em);
@@ -264,6 +278,7 @@ public class VolController {
                  .addObject("siegeParRangeeParClasse", volInfo.b)
                  .addObject("maxColonne", volInfo.a)
                  .addObject("isOngoing", isOngoing)
+                 .addObject("occupationPrixMap", occupationPrixMap)
                  .addObject("pageContent", "vols/view");
 
         }catch (Exception e) {

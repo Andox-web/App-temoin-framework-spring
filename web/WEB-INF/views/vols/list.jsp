@@ -4,11 +4,13 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="mg.etu2624.ticketing.model.view.OccupationSiege" %>
+<%@ page import="mg.etu2624.ticketing.model.view.OccupationSiegePrix" %>
 <%
     List<Vol> vols = (List<Vol>) request.getAttribute("vols");
     List<Avion> avions = (List<Avion>) request.getAttribute("avions");
     List<ClasseSiege> classesSiege = (List<ClasseSiege>) request.getAttribute("classesSiege");
     Map<Long, List<OccupationSiege>> occupationMap = (Map<Long, List<OccupationSiege>>) request.getAttribute("occupationMap");
+    Map<Long, List<OccupationSiegePrix>> occupationPrixMap = (Map<Long, List<OccupationSiegePrix>>) request.getAttribute("occupationPrixMap");
     boolean isLogged = session.getAttribute("user")!=null;
     
 
@@ -142,18 +144,45 @@
                         <td><%= vol.getArrivee() != null ? vol.getArrivee() : "-" %></td>
                         <td><%= vol.getOrigine() %> &rarr; <%= vol.getDestination() %></td>
                         <td>
-                            <% if (occupationMap != null && occupationMap.containsKey(vol.getId())) { 
-                                for (OccupationSiege occ : occupationMap.get(vol.getId())) { %>
-                                    <div class="occupation-line">
-                                        <span class="classe"><%= occ.getClasseSiege() %></span>
-                                        <span class="stats">
-                                            <em><%= occ.getNombreOccupe() %>/<%= occ.getNombreTotalSieges() %></em>
-                                            (<%= occ.getNombreLibre() %>)
-                                        </span>
-                                        <span class="prix"><%= String.format("%,.2f", occ.getPrix()) %> Ar</span>
-                                    </div>
-                                <% } 
-                            } %>
+                            <%
+                            Map<String, OccupationSiege> occByClasse = new java.util.HashMap<>();
+                            if (occupationMap != null && occupationMap.containsKey(vol.getId())) {
+                                for (OccupationSiege occ : occupationMap.get(vol.getId())) {
+                                    occByClasse.put(occ.getClasseSiege(), occ);
+                                }
+                            }
+                            Map<String, List<OccupationSiegePrix>> prixByClasse = new java.util.HashMap<>();
+                            if (occupationPrixMap != null && occupationPrixMap.containsKey(vol.getId())) {
+                                for (OccupationSiegePrix occPrix : occupationPrixMap.get(vol.getId())) {
+                                    prixByClasse.computeIfAbsent(occPrix.getClasseSiege(), k -> new java.util.ArrayList<>()).add(occPrix);
+                                }
+                            }
+                            for (String classe : occByClasse.keySet()) {
+                                OccupationSiege occ = occByClasse.get(classe);
+                                List<OccupationSiegePrix> prixList = prixByClasse.get(classe);
+                            %>
+                                <div class="occupation-block" style="margin-bottom:0.3em;">
+                                    <span class="classe"><%= occ.getClasseSiege() %></span>
+                                    <span class="stats"><%= occ.getNombreOccupe() %>/<%= occ.getNombreTotalSieges() %> (<%= occ.getNombreLibre() %>)</span>
+                                    <% if (prixList != null) { for (OccupationSiegePrix occPrix : prixList) { %>
+                                        <span class="prix" style="margin-left:1em;"><%= occPrix.getCategorie() %>: <%= occPrix.getPrix() != null ? String.format("%,.2f", occPrix.getPrix()) : "-" %> Ar</span>
+                                    <% }} %>
+                                </div>
+                            <% }
+                            for (String classe : prixByClasse.keySet()) {
+                                if (!occByClasse.containsKey(classe)) {
+                                    List<OccupationSiegePrix> prixList = prixByClasse.get(classe);
+                            %>
+                                <div class="occupation-block" style="margin-bottom:0.3em;">
+                                    <span class="classe"><%= classe %></span>
+                                    <span class="stats" style="color:#888;">(aucune occupation)</span>
+                                    <% for (OccupationSiegePrix occPrix : prixList) { %>
+                                        <span class="prix" style="margin-left:1em;"><%= occPrix.getCategorie() %>: <%= occPrix.getPrix() != null ? String.format("%,.2f", occPrix.getPrix()) : "-" %> Ar</span>
+                                    <% } %>
+                                </div>
+                            <%  }
+                            }
+                            %>
                         </td>
                         <%
                         if(isLogged) {

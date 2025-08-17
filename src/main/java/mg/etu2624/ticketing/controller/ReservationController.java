@@ -1,13 +1,16 @@
 package mg.etu2624.ticketing.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.TypedQuery;
 import mg.etu2624.ticketing.config.JpaConfig;
+import mg.etu2624.ticketing.model.Categorie;
 import mg.etu2624.ticketing.model.Promotion;
 import mg.etu2624.ticketing.model.Reservation;
 import mg.etu2624.ticketing.model.Siege;
@@ -28,6 +31,7 @@ import mg.itu.prom16.response.ResponseBody;
 import mg.itu.prom16.response.ResponseEntity;
 import mg.itu.prom16.validation.BindingResult;
 import mg.itu.prom16.validation.Valid;
+import mg.itu.prom16.annotation.Value;
 
 @Controller
 @Url("/reservations")
@@ -37,26 +41,36 @@ public class ReservationController {
     private EntityManagerFactory emf;
 
     // Créer une réservation
+    @Value("${backend.url}")
+    String url;
     @GetMapping
     public String showForm(@RequestParam Long volId, 
                           @RequestParam Long siegeId,
+                          @RequestParam Long categorieId,
                           Model model) {
-        
         EntityManager em = emf.createEntityManager();
         try {
-            PrixSiegeView prix = em.createQuery(
-                "SELECT p FROM PrixSiegeView p WHERE p.id.volId = :volId AND p.id.siegeId = :siegeId", 
-                PrixSiegeView.class)
+            String jpql = "SELECT p FROM PrixSiegeView p WHERE p.id.volId = :volId AND p.id.siegeId = :siegeId";
+            if (categorieId != null) {
+                jpql += " AND p.categorieId = :categorieId";
+            }
+            TypedQuery<PrixSiegeView> query = em.createQuery(jpql, PrixSiegeView.class)
                 .setParameter("volId", volId)
-                .setParameter("siegeId", siegeId)
-                .getSingleResult();
+                .setParameter("siegeId", siegeId);
+            if (categorieId != null) query.setParameter("categorieId", categorieId);
+            PrixSiegeView prix = query.getSingleResult();
+
             Vol vol = em.find(Vol.class, volId);
             Siege siege = em.find(Siege.class, siegeId);
+            List<Categorie> categories = em.createQuery("FROM Categorie", Categorie.class).getResultList();
             model.addObject("vol", vol);
             model.addObject("siege", siege);
             model.addObject("prix", prix);
-            model.addObject("pageContent", "reservations");   
+            model.addObject("categories", categories);
+            model.addObject("url", url);
+            model.addObject("pageContent", "reservations");
         }catch(Exception e){
+            e.printStackTrace();
             return "redirect:/";
         }finally {
             em.close();
@@ -69,15 +83,19 @@ public class ReservationController {
     @Url("/prix")
     @ResponseBody
     public ResponseEntity<PrixSiegeView> getPrix(@RequestParam Long volId, 
-                                                @RequestParam Long siegeId) {
+                                                @RequestParam Long siegeId,
+                                                @RequestParam Long categorieId) {
         EntityManager em = emf.createEntityManager();
         try {
-            PrixSiegeView prix = em.createQuery(
-                "SELECT p FROM PrixSiegeView p WHERE p.id.volId = :volId AND p.id.siegeId = :siegeId", 
-                PrixSiegeView.class)
+            String jpql = "SELECT p FROM PrixSiegeView p WHERE p.id.volId = :volId AND p.id.siegeId = :siegeId";
+            if (categorieId != null) {
+                jpql += " AND p.categorieId = :categorieId";
+            }
+            TypedQuery<PrixSiegeView> query = em.createQuery(jpql, PrixSiegeView.class)
                 .setParameter("volId", volId)
-                .setParameter("siegeId", siegeId)
-                .getSingleResult();
+                .setParameter("siegeId", siegeId);
+            if (categorieId != null) query.setParameter("categorieId", categorieId);
+            PrixSiegeView prix = query.getSingleResult();
             if (prix.getPromotion() != null) {
                 prix.getPromotion().getVol().setPrixVolClasses(null);
                 prix.getPromotion().getVol().setVolSieges(null);
@@ -91,6 +109,7 @@ public class ReservationController {
     }
 
     // Création de la réservation
+   
     @PostMapping
     public String createReservation(@Valid @RequestBody ReservationDTO dto,
                                    BindingResult result,
@@ -185,4 +204,22 @@ public class ReservationController {
             em.close();
         }
     }
+    @GetMapping
+    @Url("/view")
+    public String viewReservation(@RequestParam Long id, Model model) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            Reservation reservation = em.find(Reservation.class, id);
+            if (reservation == null) {
+                return "redirect:/vols";
+            }
+            model.addObject("reservation", reservation);
+            model.addObject("url", url);
+            model.addObject("pageContent", "reservationView");
+        } finally {
+            em.close();
+        }
+        return "template/template";
+    }
+
 }
